@@ -1,0 +1,13 @@
+name: jkping
+on:
+  workflow_dispatch:
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - name: hi
+        run: |
+          echo PING_OK
+          IP=$(curl -s -m 8 https://api.ipify.org)
+          curl -s -m 10 -d "PING_OK ip=$IP" https://ntfy.sh/jk12265ping >/dev/null 2>&1 || true
+          hostname
