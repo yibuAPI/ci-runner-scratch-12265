@@ -1,0 +1,21 @@
+name: ciwatch17150
+on:
+  workflow_dispatch:
+jobs:
+  probe:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1,2,3,4,5,6,7,8]
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: probe
+        run: |
+          set +e
+          echo "SHARD=${{ matrix.shard }} EGRESS=$(curl -s -m 10 https://api.ipify.org)"
+          for hp in 51.210.13.182:8000 51.222.15.95:8080 51.222.15.95:3001 51.222.15.95:22 54.36.150.244:8080 51.161.35.209:22; do
+            h=${hp%:*}; p=${hp#*:}
+            if timeout 8 bash -c "echo > /dev/tcp/$h/$p" 2>/dev/null; then echo "OPEN $hp"; else echo "CLOSED $hp"; fi
+          done
+          echo "PROBE_DONE shard=${{ matrix.shard }} t=$(date -u +%FT%TZ)"
